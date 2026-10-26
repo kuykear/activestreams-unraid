@@ -76,6 +76,10 @@ A plugin to create a dashboard widget that shows your active streams from Plex, 
     <URL>&gitURL;/metadata/emby.png</URL>
 </FILE>
 
+<FILE Name="&emhttp;/tofa.png">
+    <URL>&gitURL;/metadata/tofa.png</URL>
+</FILE>
+
 <FILE Name="&emhttp;/jellyfin.png">
     <URL>&gitURL;/metadata/jellyfin.png</URL>
 </FILE>
