@@ -9,11 +9,11 @@ Support my work on [PayPal.me](https://www.paypal.me/gthrift385)
 
 This project is an unofficial community plugin and is not affiliated with, endorsed by, or associated with Plex®, Emby®, or Jellyfin®.
 
-"Plex" is a trademark of Plex, Inc. "Emby" is a trademark of Emby Media Inc. "Jellyfin" is a trademark of the Jellyfin Contributors. All rights reserved.
+"Plex" is a trademark of Plex, Inc. "Emby" is a trademark of Emby Media Inc. "Jellyfin" is a trademark of the Jellyfin Contributors. "tofa" is a trademark of tofa ehf. All rights reserved.
 
 ## Features
 
-* **Multi-Server Support:** Monitor streams from Plex, Emby, and Jellyfin servers—all in one widget
+* **Multi-Server Support:** Monitor streams from Plex, Emby, tofa, and Jellyfin servers—all in one widget
 * **Multiple Instances:** Configure as many server instances as you need
 * **Dashboard Widget:** A native Unraid dashboard tile showing who is watching what, on which device, and playback progress
 * **Real-time Progress:** Shows current position and total duration (HH:MM:SS / HH:MM:SS format)
@@ -62,6 +62,7 @@ After installation, navigate to **Settings > Active Streams Settings** to config
    - **Plex**: Find your X-Plex-Token in browser developer tools or use [this guide](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)
    - **Emby**: Generate in Dashboard > Advanced > API Keys
    - **Jellyfin**: Generate in Dashboard > Advanced > API Keys
+   - **tofa**: Generate in Server > Settings > API
 6. Check "Use HTTPS/SSL" if your server uses SSL
 7. Click **Test Connection** to verify settings
 8. Click **Save Server**
@@ -93,11 +94,19 @@ After installation, navigate to **Settings > Active Streams Settings** to config
 4. Give it a name (e.g., "Unraid Widget")
 5. Copy the generated key
 
+### tofa
+
+1. Open tofa Dashboard
+2. Click on Gear Icon to access server settings.
+3. Navigate to Server > Settings > API
+4. Give it a name (e.g., "Unraid Widget")
+5. Copy the generated key
+
 ## Displayed Information
 
 For each active stream, the widget shows:
 
-- **Server Indicator**: Colored dot indicating which server (orange=Plex, green=Emby, blue=Jellyfin)
+- **Server Indicator**: Colored dot indicating which server (orange=Plex, green=Emby, blue=Jellyfin, teal=tofa)
 - **Title**: Media name (includes series name for TV shows)
 - **Device**: Client device/app name
 - **User**: Username watching
