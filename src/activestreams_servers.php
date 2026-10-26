@@ -103,7 +103,7 @@ function validatePort($port) {
 }
 
 function validateServerType($type) {
-    return in_array($type, ['plex', 'emby', 'jellyfin'], true);
+    return in_array($type, ['plex', 'emby', 'jellyfin', 'tofa'], true);
 }
 
 function validateServerData($data) {
@@ -141,18 +141,26 @@ function testConnection($type, $host, $port, $token, $ssl, $sslVerify = false) {
     $url = '';
     $headers = [];
 
-    switch ($server['type']) {
+    switch ($type) {
         case 'plex':
-            $url = "$protocol://{$server['host']}:{$server['port']}/status/sessions";
+            $url = "$protocol://$host:$port/status/sessions";
             $headers = [
                 'Accept: application/json',
-                'X-Plex-Token: ' . $server['token']
+                'X-Plex-Token: ' . $token
             ];
             break;
 
         case 'emby':
-            $url = "$protocol://{$server['host']}:{$server['port']}/emby/Sessions";
-            $headers = ['X-Emby-Token: ' . $server['token']];
+            $url = "$protocol://$host:$port/emby/Sessions";
+            $headers = ['X-Emby-Token: ' . $token];
+            break;
+
+        case 'tofa':
+            $url = "$protocol://$host:$port/api/v1/system/activity/now-playing";
+            $headers = [
+                'Accept: application/json',
+                'Authorization: Bearer ' . $token
+            ];
             break;
 
         case 'jellyfin':
@@ -202,6 +210,8 @@ function testConnection($type, $host, $port, $token, $ssl, $sslVerify = false) {
             $serverName = 'Plex Server';
         } elseif (($type === 'emby' || $type === 'jellyfin') && isset($data['ServerName'])) {
             $serverName = $data['ServerName'];
+        } elseif ($type === 'tofa' && is_array($data) && array_key_exists('sessions', $data)) {
+            $serverName = 'tofa';
         }
 
         return ['success' => true, 'message' => $serverName ? "Connected to: $serverName" : 'Connection successful'];

@@ -111,6 +111,14 @@ function buildCurlHandle($server) {
             $headers = ['X-Emby-Token: ' . $server['token']];
             break;
 
+        case 'tofa':
+            $url = "$protocol://{$server['host']}:{$server['port']}/api/v1/system/activity/now-playing";
+            $headers = [
+                'Accept: application/json',
+                'Authorization: Bearer ' . $server['token']
+            ];
+            break;
+
         case 'jellyfin':
             $url = "$protocol://{$server['host']}:{$server['port']}/Sessions";
             $headers = ['Authorization: MediaBrowser Client="ActiveStreams", Device="Unraid", DeviceId="activestreams-plugin", Version="1.0.0", Token="' . $server['token'] . '"'];
@@ -152,6 +160,8 @@ function processServerResponse($server, $response, $http_code, $curl_error) {
 
     if ($server['type'] === 'plex') {
         return parsePlexResponse($server, $response);
+    } elseif ($server['type'] === 'tofa') {
+        return parseTofaResponse($server, $response);
     } else {
         return parseEmbyJellyfinResponse($server, $response);
     }
@@ -266,6 +276,93 @@ function parsePlexResponse($server, $response) {
                 'transcode_details' => $transcodeDetails
             ];
         }
+    }
+
+    return ['streams' => $streams];
+}
+
+
+function parseTofaResponse($server, $response) {
+    global $showEpisodeNumbers;
+    $data = json_decode($response, true);
+    $streams = [];
+
+    if (!is_array($data) || !isset($data['sessions']) || !is_array($data['sessions'])) {
+        return ['streams' => $streams];
+    }
+
+    foreach ($data['sessions'] as $session) {
+        $title = $session['media_title'] ?? 'Unknown';
+
+        // tofa titles look like "Show - S02E05 - Episode". Drop the SxxExx part
+        // unless the user asked for episode numbers.
+        if (!$showEpisodeNumbers) {
+            $title = preg_replace('/ - S\d+E\d+ - /', ' - ', $title);
+        }
+
+        $user = $session['username'] ?? 'Unknown';
+        $device = $session['device_name'] ?? $session['client_name'] ?? 'Unknown';
+        $isPaused = !empty($session['is_paused']) || ($session['player_state'] ?? '') === 'paused';
+
+        $duration = isset($session['duration_ms']) ? $session['duration_ms'] / 1000 : 0;
+        $pct = isset($session['progress_pct']) ? (float)$session['progress_pct'] : 0;
+        $progress = $duration * $pct / 100;
+
+        $playMethod = $session['play_method'] ?? 'DirectPlay';
+        $vidIn  = strtolower($session['video_codec'] ?? '');
+        $vidOut = strtolower($session['output_video_codec'] ?? '');
+        $audIn  = strtolower($session['audio_codec'] ?? '');
+        $audOut = strtolower($session['output_audio_codec'] ?? '');
+        $vidChanged = ($vidIn !== '' && $vidOut !== '' && $vidIn !== $vidOut);
+        $audChanged = ($audIn !== '' && $audOut !== '' && $audIn !== $audOut);
+        $isTranscoding = $vidChanged || $audChanged || stripos($playMethod, 'transcode') !== false;
+
+        $transcodeDetails = [];
+        if ($isTranscoding) {
+            $srcRes = $session['source_resolution'] ?? ($session['resolution'] ?? '');
+            $outRes = $session['resolution'] ?? '';
+            $srcBitrate = formatBitrate($session['source_bitrate_kbps'] ?? 0);
+            $speed = $session['transcode_speed'] ?? null;
+
+            $streamLine = "Stream: " . strtoupper($playMethod);
+            if ($srcBitrate) $streamLine .= " ($srcBitrate)";
+            if ($speed && is_numeric($speed)) $streamLine .= " (" . round((float)$speed, 1) . "x)";
+            $transcodeDetails[] = $streamLine;
+
+            if ($vidChanged) {
+                $videoLine = "Video: ";
+                if ($srcRes) $videoLine .= "$srcRes ";
+                $videoLine .= strtoupper($vidIn) . " → " . strtoupper($vidOut);
+                if ($outRes && $outRes !== $srcRes) $videoLine .= " $outRes";
+            } else {
+                $videoLine = "Video: Direct Stream";
+            }
+            $transcodeDetails[] = $videoLine;
+
+            if ($audChanged) {
+                $audioLine = "Audio: " . strtoupper($audIn) . " → " . strtoupper($audOut);
+            } else {
+                $audioLine = "Audio: Direct Stream";
+            }
+            $transcodeDetails[] = $audioLine;
+
+            if (!empty($session['transcode_reasons']) && is_array($session['transcode_reasons'])) {
+                $transcodeDetails[] = "Reason: " . implode(', ', $session['transcode_reasons']);
+            }
+        }
+
+        $streams[] = [
+            'server_name' => $server['name'],
+            'server_type' => 'tofa',
+            'title' => $title,
+            'user' => $user,
+            'device' => $device,
+            'state' => $isPaused ? 'paused' : 'playing',
+            'progress' => $progress,
+            'duration' => $duration,
+            'transcoding' => $isTranscoding,
+            'transcode_details' => $transcodeDetails
+        ];
     }
 
     return ['streams' => $streams];
@@ -491,7 +588,8 @@ if (empty($allStreams)) {
         $typeColors = [
             'plex' => '#e5a00d',
             'emby' => '#52b54b', 
-            'jellyfin' => '#00a4dc'
+            'jellyfin' => '#00a4dc',
+            'tofa' => '#2dd4bf'
         ];
         $typeColor = $typeColors[$serverType] ?? '#888';
         

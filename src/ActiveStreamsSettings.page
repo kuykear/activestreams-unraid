@@ -186,6 +186,7 @@ IconFA="film"
     .type-plex { color: #e5a00d; }
     .type-emby { color: #52b54b; }
     .type-jellyfin { color: #00a4dc; }
+    .type-tofa { color: #2dd4bf; }
     
     /* Test Result Box */
     .as-test-result { 
@@ -340,7 +341,7 @@ if (!is_array($servers)) $servers = [];
 <!-- Server Management Section -->
 <div class="as-section">
     <h3><i class="fa fa-server"></i> _(Media Servers)_</h3>
-    <p>_(Configure your Plex, Emby, and Jellyfin servers below.)_</p>
+    <p>_(Configure your Plex, Emby, Jellyfin, and tofa servers below.)_</p>
     
     <div class="as-server-list" id="serverList">
         <?php if (empty($servers)): ?>
@@ -388,6 +389,7 @@ if (!is_array($servers)) $servers = [];
                     <option value="plex">Plex</option>
                     <option value="emby">Emby</option>
                     <option value="jellyfin">Jellyfin</option>
+                    <option value="tofa">tofa</option>
                 </select>
             </div>
             
@@ -457,16 +459,18 @@ $(function() {
 
 function updateFormFields() {
     var type = $('#serverType').val();
-    var ports = { plex: 32400, emby: 8096, jellyfin: 8096 };
+    var ports = { plex: 32400, emby: 8096, jellyfin: 8096, tofa: 443 };
     var hints = { 
         plex: '_(Default: 32400 for Plex)_', 
         emby: '_(Default: 8096 for Emby, 8920 for HTTPS)_', 
-        jellyfin: '_(Default: 8096 for Jellyfin, 8920 for HTTPS)_' 
+        jellyfin: '_(Default: 8096 for Jellyfin, 8920 for HTTPS)_',
+        tofa: '_(443 with HTTPS if tofa is behind a reverse proxy, otherwise tofa\'s own port)_'
     };
     var tokenHints = {
         plex: '_(Find your X-Plex-Token in browser dev tools or Plex settings)_',
         emby: '_(Generate in Emby Dashboard > Advanced > API Keys)_',
-        jellyfin: '_(Generate in Jellyfin Dashboard > Advanced > API Keys)_'
+        jellyfin: '_(Generate in Jellyfin Dashboard > Advanced > API Keys)_',
+        tofa: '_(Create in tofa: Settings > API > New key)_'
     };
     
     $('#serverPort').attr('placeholder', ports[type]);
@@ -598,7 +602,8 @@ function testConnection() {
 }
 
 function getDefaultPort(type) {
-    return type === 'plex' ? 32400 : 8096;
+    var defaults = { plex: 32400, emby: 8096, jellyfin: 8096, tofa: 443 };
+    return defaults[type] || 8096;
 }
 
 $('#serverForm').on('submit', function(e) {
