@@ -1,13 +1,13 @@
 # Active Streams Widget for Unraid
 
-Active Streams is a lightweight Unraid plugin that adds a real-time dashboard widget to monitor active media streams from **Plex**, **Emby**, and **Jellyfin** servers directly from your Unraid WebGUI.
+Active Streams is a lightweight Unraid plugin that adds a real-time dashboard widget to monitor active media streams from **Plex**, **Emby**, **tofa**, and **Jellyfin** servers directly from your Unraid WebGUI.
 
 Support my work on [PayPal.me](https://www.paypal.me/gthrift385)
 
 
 ## Disclaimer
 
-This project is an unofficial community plugin and is not affiliated with, endorsed by, or associated with Plex®, Emby®, or Jellyfin®.
+This project is an unofficial community plugin and is not affiliated with, endorsed by, or associated with Plex®, Emby®, tofa®, or Jellyfin®.
 
 "Plex" is a trademark of Plex, Inc. "Emby" is a trademark of Emby Media Inc. "Jellyfin" is a trademark of the Jellyfin Contributors. "tofa" is a trademark of tofa ehf. All rights reserved.
 
