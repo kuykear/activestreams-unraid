@@ -271,6 +271,7 @@ if (!is_array($servers)) $servers = [];
                 <option value="Plex Streams" <?php echo($cfg['WIDGET_TITLE'] === "Plex Streams" ? "selected" : ""); ?>>Plex Streams</option>
                 <option value="Emby Streams" <?php echo($cfg['WIDGET_TITLE'] === "Emby Streams" ? "selected" : ""); ?>>Emby Streams</option>
                 <option value="Jellyfin Streams" <?php echo($cfg['WIDGET_TITLE'] === "Jellyfin Streams" ? "selected" : ""); ?>>Jellyfin Streams</option>
+                <option value="tofa Streams" <?php echo($cfg['WIDGET_TITLE'] === "tofa Streams" ? "selected" : ""); ?>>tofa Streams</option>
             </select>
         </div>
         
@@ -281,6 +282,7 @@ if (!is_array($servers)) $servers = [];
                 <option value="plex" <?php echo($cfg['WIDGET_ICON'] === "plex" ? "selected" : ""); ?>>Plex</option>
                 <option value="emby" <?php echo($cfg['WIDGET_ICON'] === "emby" ? "selected" : ""); ?>>Emby</option>
                 <option value="jellyfin" <?php echo($cfg['WIDGET_ICON'] === "jellyfin" ? "selected" : ""); ?>>Jellyfin</option>
+                <option value="tofa" <?php echo($cfg['WIDGET_ICON'] === "tofa" ? "selected" : ""); ?>>tofa</option>
             </select>
         </div>
         
